@@ -10,7 +10,7 @@ from core.models import Recipe
 from recipe import serializers
 
 
-class RecipeViewSets(viewsets.ModelViewSet):
+class RecipeViewSet(viewsets.ModelViewSet):
     """View for manage recipe APIs"""
 
     serializer_class = serializers.RecipeSerializer
@@ -19,5 +19,6 @@ class RecipeViewSets(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        """Retrieve the recipes for authenticated user - must be overriden to filter it only for auth user"""
+        """Retrieve the recipes for authenticated user -
+        must be overriden to filter it only for auth user"""
         return self.queryset.filter(user=self.request.user).order_by('-id')
