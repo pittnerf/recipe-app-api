@@ -41,7 +41,14 @@ class RecipeViewSet(viewsets.ModelViewSet):
         serializer.save(user=self.request.user)
 
 
-class TagViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+# it is important to have mixins.ListModelMixin first in the parameters,
+# and later viewsets.GenericViewSet !!
+class TagViewSet(
+    mixins.DestroyModelMixin,
+    mixins.UpdateModelMixin,
+    mixins.ListModelMixin,
+    viewsets.GenericViewSet,
+):
     """View for manage tags APIs"""
 
     serializer_class = serializers.TagSerializer
