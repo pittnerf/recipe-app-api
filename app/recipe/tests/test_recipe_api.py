@@ -32,9 +32,11 @@ def detail_url(recipe_id):
     """Create and return a recipe detail URL."""
     return reverse('recipe:recipe-detail', args=[recipe_id])
 
+
 def image_upload_url(recipe_id):
     """Create and return an image upload URL"""
     return reverse('recipe:recipe-upload-image', args=[recipe_id])
+
 
 def create_recipe(user, **params):
     """Create and retun a sample recipe."""
@@ -374,8 +376,9 @@ class PrivateRecipeApiTests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(recipe.ingredients.count(), 0)
 
-    class ImageUploadTests(TestCase):
-        """Tests for the image upload API."""
+
+class ImageUploadTests(TestCase):
+    """Tests for the image upload API."""
 
     # it runs before each test
     def setUp(self):
@@ -398,7 +401,7 @@ class PrivateRecipeApiTests(TestCase):
         # one file the file which will be uploaded, the second is
         # the stored file on the server
         with tempfile.NamedTemporaryFile(suffix='.jpg') as image_file:
-            img = Image.new('RGB', (10,10))
+            img = Image.new('RGB', (10, 10))
             img.save(image_file, format='JPEG')
             # erre meg mire van szükség? - mert az előző save elviszi a
             # fájlpointert a fájl végére, szóval vissza kell ugrani az elejére
@@ -413,10 +416,7 @@ class PrivateRecipeApiTests(TestCase):
 
     def test_upload_image_bad_request(self):
         """Test uploading invalid image"""
-        urlp = image_upload_url(self.recipe.id)
+        url = image_upload_url(self.recipe.id)
         payload = {"image": 'notan image'}
-        es = self.client.post(url, payload, format='multipart')
+        res = self.client.post(url, payload, format='multipart')
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-
-
-

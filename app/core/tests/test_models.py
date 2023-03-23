@@ -92,7 +92,7 @@ class ModelTests(TestCase):
 
         self.assertEqual(str(ingredient), ingredient.name)
 
-    #path the uuid function that is imported into our models
+    # path the uuid function that is imported into our models
     # so we can replace the behaviour of that string
     # uuid generates a unique string, qwe don't need a random one
     # so we mock it by uuid = 'test-uuid'

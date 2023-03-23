@@ -9,6 +9,7 @@ from django.db import models
 from django.contrib.auth.models import (AbstractBaseUser,
                                         BaseUserManager, PermissionsMixin,)
 
+
 def recipe_image_file_path(instance, filename):
     """Generate file path the new recipe image"""
     # takle the extension
@@ -35,7 +36,7 @@ class UserManager(BaseUserManager):
         return user
 
     def create_superuser(self, email, password):
-        """"Create and return a new superuser"""
+        """Create and return a new superuser"""
         user = self.create_user(email, password)
         user.is_staff = True
         user.is_superuser = True

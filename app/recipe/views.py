@@ -7,13 +7,16 @@ from rest_framework import (
     status,
 )
 
+from rest_framework.decorators import action
+from rest_framework.response import Response
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework.decorators import action
+
 
 from core.models import (
-    Recipe, Tag, Ingredient,
+    Recipe,
+    Tag,
+    Ingredient,
 )
 from recipe import serializers
 
@@ -47,7 +50,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     # define the HTTP actions supported by the method,
     # this action will apply to the detail portion/endpoint of the recipe
-    @action(method=['POST'], detail=True, url_path='upload-image')
+    @action(methods=['POST'], detail=True, url_path='upload-image')
     def upload_image(self, request, pk=None):
         """Upload an image to a recpie"""
         recipe = self.get_object()
@@ -58,7 +61,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 
 class BaseRecipeAttrViewSet(
