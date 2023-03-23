@@ -2,6 +2,10 @@
 Tests for recipe APIs.
 """
 from decimal import Decimal
+import tempfile
+import os
+
+from PIL import Image
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase
@@ -28,6 +32,9 @@ def detail_url(recipe_id):
     """Create and return a recipe detail URL."""
     return reverse('recipe:recipe-detail', args=[recipe_id])
 
+def image_upload_url(recipe_id):
+    """Create and return an image upload URL"""
+    return reverse('recipe:recipe-upload-image', args=[recipe_id])
 
 def create_recipe(user, **params):
     """Create and retun a sample recipe."""
@@ -325,7 +332,6 @@ class PrivateRecipeApiTests(TestCase):
             ).exists()
             self.assertTrue(exists)
 
-
     def test_create_ingredient_on_update(self):
         """Test creating ingredient when updating a recipe"""
         recipe = create_recipe(user=self.user)
@@ -341,14 +347,14 @@ class PrivateRecipeApiTests(TestCase):
     def test_update_recipe_assign_ingredient(self):
         """Test assigning an existing ingredient when updating a recipe"""
         ingredient_breakfast = Ingredient.objects.create(
-            user=self.user, name='Breakfast'
+            user=self.user, name='Breakfast',
         )
         recipe = create_recipe(user=self.user)
         recipe.ingredients.add(ingredient_breakfast)
         ingredient_lunch = Ingredient.objects.create(
-            user=self.user, name='Lunch'
+            user=self.user, name='Lunch',
         )
-        payload = {'ingredient': [{'name': 'Lunch'}]}
+        payload = {'ingredients': [{'name': 'Lunch'}]}
         url = detail_url(recipe.id)
         res = self.client.patch(url, payload, format='json')
 
@@ -367,3 +373,50 @@ class PrivateRecipeApiTests(TestCase):
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(recipe.ingredients.count(), 0)
+
+    class ImageUploadTests(TestCase):
+        """Tests for the image upload API."""
+
+    # it runs before each test
+    def setUp(self):
+        self.user = create_user(email='user@example.com',
+                                password='testpass123')
+        self.client = APIClient()
+        self.client.force_authenticate(self.user)
+        self.recipe = create_recipe(user=self.user)
+
+    # it is runned after each test !!!
+    # kitörli a teszt képeket
+    def tearDown(self):
+        self.recipe.image.delete()
+
+    def test_upload_image(self):
+        """Test uploading image to a recipe"""
+        # create for the upload url for the recipe id
+        url = image_upload_url(self.recipe.id)
+        # create named temporary file, delete at the end
+        # one file the file which will be uploaded, the second is
+        # the stored file on the server
+        with tempfile.NamedTemporaryFile(suffix='.jpg') as image_file:
+            img = Image.new('RGB', (10,10))
+            img.save(image_file, format='JPEG')
+            # erre meg mire van szükség? - mert az előző save elviszi a
+            # fájlpointert a fájl végére, szóval vissza kell ugrani az elejére
+            image_file.seek(0)
+            payload = {'image': image_file}
+            res = self.client.post(url, payload, format='multipart')
+
+        self.recipe.refresh_from_db()
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertIn('image', res.data)
+        self.assertTrue(os.path.exists(self.recipe.image.path))
+
+    def test_upload_image_bad_request(self):
+        """Test uploading invalid image"""
+        urlp = image_upload_url(self.recipe.id)
+        payload = {"image": 'notan image'}
+        es = self.client.post(url, payload, format='multipart')
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+

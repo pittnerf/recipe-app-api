@@ -1,6 +1,7 @@
 """
 Tests for models
 """
+from unittest.mock import patch
 from decimal import Decimal
 
 from django.test import TestCase
@@ -90,3 +91,17 @@ class ModelTests(TestCase):
             )
 
         self.assertEqual(str(ingredient), ingredient.name)
+
+    #path the uuid function that is imported into our models
+    # so we can replace the behaviour of that string
+    # uuid generates a unique string, qwe don't need a random one
+    # so we mock it by uuid = 'test-uuid'
+    @patch('core.models.uuid.uuid4')
+    def test_recipte_file_name_uuid(self, mock_uuid):
+        """Test generating uimapge path"""
+        # ensure that the unique file name
+        uuid = 'test-uuid'
+        mock_uuid.return_value = uuid
+        file_path = models.recipe_image_file_path(None, 'example.jpg')
+
+        self.assertEqual(file_path, f'uploads/recipe/{uuid}.jpg')

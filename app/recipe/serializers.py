@@ -8,7 +8,7 @@ from core.models import (
 
 
 class IngredientSerializer(serializers.ModelSerializer):
-    """Serializer for tags"""
+    """Serializer for Ingredients"""
 
     class Meta:
         model = Ingredient
@@ -97,3 +97,13 @@ class RecipeDetailSerializer(RecipeSerializer):
 
     class Meta(RecipeSerializer.Meta):
         fields = RecipeSerializer.Meta.fields + ['description']
+
+
+class RecipeImageSerializer(serializers.ModelSerializer):
+    """Serializer for uploading images to recipes"""
+
+    class Meta:
+        model = Recipe
+        fields = ['id', 'image']
+        read_only_fields = ['id']
+        extra_kwargs = {'image': {'reuired': 'True'}}
