@@ -8,6 +8,7 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
 
+
 class HealthChekcTests(TestCase):
     """Test the health check API"""
 
@@ -18,4 +19,3 @@ class HealthChekcTests(TestCase):
         url = reverse('health-check')
         res = client.get(url)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-
